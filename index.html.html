@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compact Analog Watch No.1</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: grey;
+            margin: 0;
+        }
+
+        #watch-container {
+            width: 120px; /* Resized to fit roughly the space of 3 app icons */
+            height: 120px;
+            background-color: grey;
+            color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3px; /* 3px padding as requested */
+        }
+
+        .watch-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #analog-watch {
+            width: 100%;
+            height: 100%;
+        }
+
+        #date-display {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .date-day {
+            font-size: 25px;
+            color: black;
+            font-family: Georgia;
+        }
+
+        .date-month-year {
+            display: flex;
+            font-size: 16px;
+            gap: 3px;
+            font-family: Georgia;
+            color: black;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>  
+    <div id="watch-container">
+        <canvas id="analog-watch" class="watch-face" width="94" height="94"></canvas>
+        <div id="date-display" class="watch-face">
+            <div class="date-day" id="day"></div>
+            <div class="date-month-year">
+                <div id="month"></div>
+                <div id="year"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('analog-watch');
+        const ctx = canvas.getContext('2d');
+
+        function drawAnalogWatch() {
+            const now = new Date();
+            const hours = now.getHours() % 12;
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw clock face with numbers
+            ctx.beginPath();
+            ctx.arc(47, 47, 44, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'grey';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw numbers on the analog clock (1 to 12)
+            ctx.font = '10px Times New Roman';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const radius = 38;
+            for (let i = 1; i <= 12; i++) {
+                const angle = (i * 30 - 90) * (Math.PI / 180);
+                const x = 47 + Math.cos(angle) * radius;
+                const y = 47 + Math.sin(angle) * radius;
+                ctx.fillText(i, x, y);
+            }
+
+            // Draw hour hand (white)
+            ctx.save();
+            ctx.translate(47, 47);  // Move to the center of the clock
+            ctx.rotate(((hours + minutes / 60) * 30 * Math.PI) / 180);
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -20);  // Longer hand
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw minute hand (orange)
+            ctx.save();
+            ctx.translate(47, 47);
+            ctx.rotate((minutes * 6 * Math.PI) / 180);
+            ctx.strokeStyle = 'orange';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -30);  // Longer minute hand
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw second hand (red)
+            ctx.save();
+            ctx.translate(47, 47);
+            ctx.rotate((seconds * 6 * Math.PI) / 180);
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -35);  // Even longer second hand
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function updateDateDisplay() {
+            const now = new Date();
+            document.getElementById('day').textContent = now.getDate();
+            document.getElementById('month').textContent = now.toLocaleString('default', { month: 'short' });
+            document.getElementById('year').textContent = now.getFullYear();
+        }
+
+        setInterval(() => {
+            drawAnalogWatch();
+            updateDateDisplay();
+        }, 1000);
+
+        // Initialize the display
+        drawAnalogWatch();
+        updateDateDisplay();
+    </script>
+</body>
+</html>
+
